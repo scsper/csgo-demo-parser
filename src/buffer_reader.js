@@ -56,4 +56,11 @@ export default class BufferReader {
 
     return result;
   }
+
+  from(length) {
+    const result = Buffer.from(this.buffer, this.index, length);
+    this.index += length;
+
+    return result;
+  }
 }

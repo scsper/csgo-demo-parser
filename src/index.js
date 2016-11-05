@@ -1,13 +1,19 @@
 import fs from 'fs';
-import Protobuf from 'protobufjs';
+import ProtoBuf from 'protobufjs';
 
 import BufferReader from './buffer_reader';
 import {DemoMessages} from './constants';
 
+import parseCommandInfo from './parsers/command_info';
+
 const DEMO_PATH = './demos/mirage_30.dem';
-const netMessagesBuilder = Protobuf.loadProtoFile('./protobuf/netmessages_public.proto');
+const netMessagesBuilder = ProtoBuf.loadProtoFile('./src/protobuf/netmessages_public.proto');
+const NET_MESSAGES = netMessagesBuilder.build('NET_Messages');
+console.log(NET_MESSAGES);
 
 const demoBuffer = fs.readFileSync(DEMO_PATH);
+
+const MAX_NET_PAYLOAD = 262140; // largest message that can be sent in bytes (1024 * 1024 * 2 bits)
 
 function parseDemoHeader(bufferReader) {
   const MAX_OSPATH = 260;
@@ -79,15 +85,20 @@ function readDemo() {
 
       case DemoMessages.SIGN_ON:
       case DemoMessages.PACKET:
+        parseCommandInfo(bufferReader);
+
+        // Sequence information.  Not useful.
+        bufferReader.int32(); // nSeqNrIn
+        bufferReader.int32(); // nSeqNrOut
+
+        const packetBuffer = bufferReader.from(MAX_NET_PAYLOAD);
+        const packetBufferReader = new BufferReader(packetBuffer);
+
         // not implemented yet
         break;
 
       default:
         break;
-
-
-
-
     }
   }
 }
