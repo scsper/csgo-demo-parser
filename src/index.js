@@ -1,15 +1,13 @@
 import fs from 'fs';
-import ProtoBuf from 'protobufjs';
 
 import BufferReader from './buffer_reader';
 import {DemoMessages} from './constants';
 
+import NetMessages from './net_messages';
+
 import parseCommandInfo from './parsers/command_info';
 
 const DEMO_PATH = './demos/mirage_30.dem';
-const netMessagesBuilder = ProtoBuf.loadProtoFile('./src/protobuf/netmessages_public.proto');
-const NET_MESSAGES = netMessagesBuilder.build('NET_Messages');
-console.log(NET_MESSAGES);
 
 const demoBuffer = fs.readFileSync(DEMO_PATH);
 
