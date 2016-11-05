@@ -2,6 +2,7 @@ const UINT32 = 4;
 const INT32 = 4;
 const FLOAT = 4;
 const CHAR = 1;
+const MAX_VAR_UINT_32_BYTES = 5;
 
 export default class BufferReader {
   constructor(buffer) {
@@ -46,6 +47,28 @@ export default class BufferReader {
   int32() {
     const result = this.buffer.readInt32LE(this.index);
     this.index += INT32;
+
+    return result;
+  }
+
+  /**
+   * This probably isn't right.  Need to write tests for it.
+   */
+  varuint32() {
+    const result = 0;
+    const count = 0;
+    let b;
+
+    do {
+      if (count === MAX_VAR_UINT_32_BYTES) {
+        return result;
+      }
+
+      b = this.char();
+
+      result |= (b & 0x7F) << (7 * count);
+      count++;
+    } while (b & 0x80);
 
     return result;
   }
