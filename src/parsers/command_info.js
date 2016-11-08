@@ -28,7 +28,7 @@ function parseSplit(bufferReader) {
  * An angle in the Source engine.
  */
 function parseQAngle(bufferReader) {
-  parseVector(bufferReader);
+  return parseVector(bufferReader);
 }
 
 function parseVector(bufferReader) {

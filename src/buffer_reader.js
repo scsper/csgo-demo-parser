@@ -29,6 +29,7 @@ export default class BufferReader {
   float() {
     // CSGO demos use little endian.  Big endian gives the wrong result.
     const result = this.buffer.readFloatLE(this.index);
+    this.print(FLOAT);
     this.index += FLOAT;
 
     return result;
@@ -39,6 +40,8 @@ export default class BufferReader {
    */
   uint32() {
     const result = this.buffer.readUInt32LE(this.index);
+    this.print(UINT32);
+
     this.index += UINT32;
 
     return result;
@@ -49,6 +52,8 @@ export default class BufferReader {
    */
   int32() {
     const result = this.buffer.readInt32LE(this.index);
+    this.print(INT32);
+
     this.index += INT32;
 
     return result;
@@ -108,9 +113,23 @@ export default class BufferReader {
    */
   char() {
     const result = this.buffer.readUInt8(this.index);
+    this.print(CHAR);
     this.index += CHAR;
 
     return result;
+  }
+
+  next() {
+    const result = this.buffer.readUInt8(this.index);
+    console.log(result, String.fromCharCode(result));
+
+    this.index += CHAR;
+
+    return result;
+  }
+
+  skip(length) {
+    this.index += length;
   }
 
   /**
@@ -126,5 +145,16 @@ export default class BufferReader {
     this.index += length;
 
     return result;
+  }
+
+  copy(target, end) {
+    this.buffer.copy(target, 0, this.index, this.index+end);
+    this.index += end;
+  }
+
+  print(length) {
+    for (var i = this.index; i < this.index + length; i++) {
+      // console.log('reader:', this.buffer[i]);
+    }
   }
 }

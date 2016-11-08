@@ -55,10 +55,17 @@ function readDemo() {
   const bufferReader = new BufferReader(demoBuffer);
   const demoHeader = parseDemoHeader(bufferReader);
 
+  console.log(demoHeader);
+
+  let count = 0;
   let isDemoFinished = false;
 
-  while (!isDemoFinished) {
+  while (/*!isDemoFinished && */count < 3) {
     const {command, tick, playerSlot} = parseCommandHeader(bufferReader);
+
+    console.log(command, tick, playerSlot);
+
+    count++;
 
     switch (command) {
       case DemoMessages.STOP:
@@ -83,19 +90,41 @@ function readDemo() {
 
       case DemoMessages.SIGN_ON:
       case DemoMessages.PACKET:
-        parseCommandInfo(bufferReader);
+        console.log('parsing packet');
+        const commandInfo = parseCommandInfo(bufferReader);
+
+        console.log(commandInfo);
 
         // Sequence information.  Not useful.
         bufferReader.int32(); // nSeqNrIn
         bufferReader.int32(); // nSeqNrOut
 
-        const packetBuffer = bufferReader.from(MAX_NET_PAYLOAD);
-        const packetBufferReader = new BufferReader(packetBuffer);
+        // TODO: this is probably not the length of the packet... it's the length of something...
+        // need to find out what exactly.
+        const lengthOfPacket = bufferReader.int32();
 
-        // not implemented yet
+        // this is the NetMessage command
+        const packetCommand = bufferReader.varuint32();
+        // this is the size of the upcoming command
+        const size = bufferReader.varuint32();
+
+        const netMessage = NetMessages.get(packetCommand);
+        const messageBuffer = Buffer.alloc(lengthOfPacket);
+
+        bufferReader.copy(messageBuffer, size);
+
+        const data = netMessage.decode(messageBuffer);
+
+        // console.log(lengthOfPacket);
+        // console.log(bufferReader.buffer.length);
+        // console.log(size);
+
+        console.log(data);
+
         break;
 
       default:
+        console.log('WHAT?!');
         break;
     }
   }
